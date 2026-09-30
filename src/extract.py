@@ -14,7 +14,7 @@ load_dotenv(ROOT / ".env")
 
 TMDB_ACCESS_TOKEN = os.getenv("TMDB_ACCESS_TOKEN")
 
-URL = "https://api.themoviedb.org/3/movie/popular" 
+URL = os.getenv("URL")
 
 headers = {
     "Authorization": f"Bearer {TMDB_ACCESS_TOKEN}",
@@ -46,7 +46,7 @@ def fetch_page(page):
         return None
 
 
-def extract_movies(total_pages=50):
+def extract_movies(total_pages):
     all_movies = []
 
     for page in range(1, total_pages + 1):
@@ -69,26 +69,42 @@ def extract_movies(total_pages=50):
             movie_data = {
                 "movie_id": movie_id,
                 "title": details.get("title"),
+                "original_title": details.get("original_title"),
                 "overview": details.get("overview"),
+                "tagline": details.get("tagline"),
                 "release_date": details.get("release_date"),
                 "runtime": details.get("runtime"),
                 "original_language": details.get("original_language"),
+
                 "genres": details.get("genres"),
                 "keywords": (
                     keywords_data.get("keywords", [])
                     if keywords_data
                     else []
                 ),
+
                 "budget": details.get("budget"),
                 "revenue": details.get("revenue"),
                 "popularity": details.get("popularity"),
                 "vote_average": details.get("vote_average"),
                 "vote_count": details.get("vote_count"),
+
+                "status": details.get("status"),
+                "adult": details.get("adult"),
+
+                "production_companies": details.get("production_companies"),
+                "production_countries": details.get("production_countries"),
+                "spoken_languages": details.get("spoken_languages"),
+                "belongs_to_collection": details.get("belongs_to_collection"),
+
+                "poster_path": details.get("poster_path"),
+                "backdrop_path": details.get("backdrop_path"),
+                "homepage": details.get("homepage"),
             }
 
             all_movies.append(movie_data)
 
-            time.sleep(0.2)
+            time.sleep(0.00001)
 
     return all_movies
 
@@ -143,6 +159,6 @@ def fetch_movie_keywords(movie_id):
         return None
 
 
-movies = extract_movies(total_pages=50)
+movies = extract_movies(total_pages=150)
 
 save_raw_data(movies)

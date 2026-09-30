@@ -12,46 +12,53 @@ CLEAN_FILE = CLEAN_DIR / "movies_clean.csv"
 
 df = pd.read_json(RAW_FILE)
 
-
-# Remove duplicated movies
 df = df.drop_duplicates(subset="movie_id")
 
-
-# Convert release_date to datetime
-df["release_date"] = pd.to_datetime(
-    df["release_date"],
-    errors="coerce"
-)
+df["release_date"] = pd.to_datetime(df["release_date"], errors="coerce")
 
 
-# Replace empty text values with missing values
-text_columns = [
+text_columns_to_clean = [
     "title",
+    "original_title",
     "overview",
+    "tagline",
     "original_language",
+    "status",
+    "homepage",
+    "poster_path",
+    "backdrop_path",
 ]
-
-for column in text_columns:
+for column in text_columns_to_clean:
     df[column] = df[column].replace("", pd.NA)
 
 
-# Treat 0 as missing for fields where 0 represents unavailable information
-df["runtime"] = df["runtime"].replace(0, pd.NA)
-df["budget"] = df["budget"].replace(0, pd.NA)
-df["revenue"] = df["revenue"].replace(0, pd.NA)
+numeric_missing_columns = [
+    "runtime",
+    "budget",
+    "revenue",
+]
+
+for column in numeric_missing_columns:
+    if column in df.columns:
+        df[column] = df[column].replace(0, pd.NA)
 
 
-# Replace empty genre and keyword lists with missing values
-df["genres"] = df["genres"].apply(
-    lambda x: pd.NA if len(x) == 0 else x
-)
+list_columns = [
+    "genres",
+    "keywords",
+    "production_companies",
+    "production_countries",
+    "spoken_languages",
+]
 
-df["keywords"] = df["keywords"].apply(
-    lambda x: pd.NA if len(x) == 0 else x
-)
+for column in list_columns:
+    df[column] = df[column].apply(
+        lambda x: pd.NA
+        if isinstance(x, list) and len(x) == 0
+        else x
+    )
 
 
-# Separate column types
 numerical_columns = [
     "runtime",
     "budget",
@@ -63,15 +70,35 @@ numerical_columns = [
 
 categorical_columns = [
     "original_language",
+    "status",
+    "adult",
     "genres",
+    "production_companies",
+    "production_countries",
+    "spoken_languages",
+    "belongs_to_collection",
 ]
 
 text_columns = [
     "title",
+    "original_title",
     "overview",
+    "tagline",
     "keywords",
 ]
 
+metadata_columns = [
+    "movie_id",
+    "homepage",
+    "poster_path",
+    "backdrop_path",
+    "release_date",
+]
+
+df["runtime"] = df["runtime"].astype("Int64")
+df["budget"] = df["budget"].astype("Int64")
+df["revenue"] = df["revenue"].astype("Int64")
+ 
 
 # Final checks
 print("Final shape:")
@@ -79,9 +106,6 @@ print(df.shape)
 
 print("\nMissing values:")
 print(df.isna().sum())
-
-print("\nDuplicated movie IDs:")
-print(df["movie_id"].duplicated().sum())
 
 print("\nNumerical columns:")
 print(numerical_columns)
@@ -95,13 +119,25 @@ print(text_columns)
 print("\nData types:")
 print(df.dtypes)
 
+print("\nNegative runtime:")
+print((df["runtime"] < 0).sum())
+
+print("\nNegative budget:")
+print((df["budget"] < 0).sum())
+
+print("\nNegative revenue:")
+print((df["revenue"] < 0).sum())
+
+print("\nInvalid vote_average:")
+print(((df["vote_average"] < 0) | (df["vote_average"] > 10)).sum())
+
+print("\nNegative vote_count:")
+print((df["vote_count"] < 0).sum())
+
 
 # Save cleaned dataset
-CLEAN_DIR.mkdir(parents=True, exist_ok=True)
+CLEAN_DIR.mkdir(parents=True,exist_ok=True)
 
-df.to_csv(
-    CLEAN_FILE,
-    index=False
-)
+df.to_csv(CLEAN_FILE,index=False)
 
 print(f"\nCleaned data saved to: {CLEAN_FILE}")

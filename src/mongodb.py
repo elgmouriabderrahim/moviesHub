@@ -4,10 +4,10 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
 
- 
+
 ROOT = Path(__file__).resolve().parents[1]
-clean_movies_path = ROOT / "data" / "clean" / "movies_clean.csv"
-df = pd.read_csv(clean_movies_path)
+clean_movies_file = ROOT / "data" / "clean" / "movies_clean.csv"
+df = pd.read_csv(clean_movies_file)
 
 load_dotenv(ROOT / ".env")
 MONGO_URI = os.getenv("MONGO_URI") 

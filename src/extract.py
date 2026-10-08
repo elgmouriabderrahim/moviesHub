@@ -69,37 +69,29 @@ def extract_movies(total_pages):
             movie_data = {
                 "movie_id": movie_id,
                 "title": details.get("title"),
-                "original_title": details.get("original_title"),
                 "overview": details.get("overview"),
-                "tagline": details.get("tagline"),
                 "release_date": details.get("release_date"),
                 "runtime": details.get("runtime"),
                 "original_language": details.get("original_language"),
-
                 "genres": details.get("genres"),
-                "keywords": (
-                    keywords_data.get("keywords", [])
-                    if keywords_data
-                    else []
-                ),
-
+                "keywords": keywords_data.get("keywords", []) if keywords_data else [],
                 "budget": details.get("budget"),
                 "revenue": details.get("revenue"),
                 "popularity": details.get("popularity"),
                 "vote_average": details.get("vote_average"),
                 "vote_count": details.get("vote_count"),
 
+
+                "tagline": details.get("tagline"),
                 "status": details.get("status"),
                 "adult": details.get("adult"),
 
                 "production_companies": details.get("production_companies"),
                 "production_countries": details.get("production_countries"),
-                "spoken_languages": details.get("spoken_languages"),
                 "belongs_to_collection": details.get("belongs_to_collection"),
 
                 "poster_path": details.get("poster_path"),
                 "backdrop_path": details.get("backdrop_path"),
-                "homepage": details.get("homepage"),
             }
 
             all_movies.append(movie_data)

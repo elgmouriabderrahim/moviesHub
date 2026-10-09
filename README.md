@@ -2,6 +2,12 @@
 
 MoviesHub is a movie data pipeline and dashboard. It retrieves movie data from TMDB, cleans it, creates features, stores the resulting records in MongoDB, and trains models used by a Streamlit dashboard.
 
+## Architecture
+
+![Diagramme d’architecture de MoviesHub](diagrams/architecture.png)
+
+The [SVG version](diagrams/architecture.svg) is available for zooming or editing.
+
 ## Project layout
 
 - `src/extract.py` fetches popular movies and their details from TMDB into `data/raw/movies.json`.

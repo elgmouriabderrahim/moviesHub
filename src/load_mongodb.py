@@ -10,28 +10,16 @@ ROOT = Path(__file__).resolve().parents[1]
 FEATURE_FILE = ROOT / "data" / "features" / "movies_features.csv"
 
 load_dotenv(ROOT / ".env")
+MONGO_URI = os.getenv("MONGO_URI") 
 
-df = pd.read_csv(FEATURE_FILE)
-
-MONGO_HOST = os.getenv("MONGO_HOST", "localhost")
-MONGO_PORT = int(os.getenv("MONGO_PORT", "27017"))
-MONGO_USERNAME = os.getenv("MONGO_INITDB_ROOT_USERNAME")
-MONGO_PASSWORD = os.getenv("MONGO_INITDB_ROOT_PASSWORD")
-
-client = MongoClient(
-    host=MONGO_HOST,
-    port=MONGO_PORT,
-    username=MONGO_USERNAME,
-    password=MONGO_PASSWORD,
-    authSource="admin",
-)
-
+client = MongoClient(MONGO_URI)
 db = client["moviesHub_db"]
-movies_collection = db["movies"]
+movies_collection = db["movies_features"]
 
 # Update each movie by movie_id so the collection is not cleared on every run.
 movies_collection.create_index("movie_id", unique=True)
 
+df = pd.read_csv(FEATURE_FILE)
 movies = df.to_dict(orient="records")
 
 operations = [

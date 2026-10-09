@@ -17,7 +17,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 
-# Load the same feature dataset used in the classification and clustering notebooks.
+# Load the dataset
 ROOT = Path(__file__).resolve().parents[1]
 FEATURE_FILE = ROOT / "data" / "features" / "movies_features.csv"
 MODEL_DIR = ROOT / "models"
@@ -25,9 +25,8 @@ MODEL_DIR = ROOT / "models"
 df = pd.read_csv(FEATURE_FILE)
 
 
-# Create the classification target, as in 04_classification.ipynb.
+# Create the classification target
 threshold = df["vote_count"].median()
-
 df["high_engagement"] = (df["vote_count"] >= threshold).astype(int)
 
 
@@ -39,10 +38,12 @@ num_features = [
     "vote_average",
     "release_year",
     "release_month",
+    "release_decade",
     "genre_count",
     "keyword_count",
     "roi",
-    "movie_age"
+    "movie_age",
+    "overview_length"
 ]
 
 categorical_features = [
@@ -76,7 +77,7 @@ X = df[features]
 y = df["high_engagement"]
 
 
-# Split the data in the same way as 04_classification.ipynb.
+# Split the data
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
@@ -86,7 +87,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 
-# Use the same preprocessing structure as 04_classification.ipynb.
+# preprocessing
 numeric_preprocessor = Pipeline([
     ("imputer", SimpleImputer(strategy="median")),
     ("scaler", StandardScaler())
@@ -105,7 +106,7 @@ preprocessor = ColumnTransformer([
 ])
 
 
-# Train the same Random Forest and use the same GridSearchCV settings as the notebook.
+# Train the  Random Forest and use the same GridSearchCV settings as the notebook.
 random_forest_model = Pipeline([
     ("preprocessor", preprocessor),
     ("classifier", RandomForestClassifier(
@@ -148,7 +149,7 @@ classification_metrics = {
 }
 
 
-# Prepare the clustering data as in 05_clustering.ipynb.
+# Prepare the clustering data
 df_cluster = pd.read_csv(FEATURE_FILE)
 
 df_cluster["genres"] = df_cluster["genres"].apply(

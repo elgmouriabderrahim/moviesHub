@@ -184,7 +184,7 @@ cluster_preprocessor = ColumnTransformer([
 X_cluster = cluster_preprocessor.fit_transform(df_cluster[cluster_features])
 
 
-# Test several K values and use the Silhouette Score, as in 05_clustering.ipynb.
+# Test several K values and use the Silhouette Score
 k_values = range(2, 11)
 
 silhouette_scores = []

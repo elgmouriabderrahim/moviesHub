@@ -121,10 +121,14 @@ def classification_page(movies):
     model = artifact["model"]
     metrics = artifact["metrics"]
     st.caption("Validation on the training script's held-out split: "
-               f"accuracy {metrics['accuracy']:.3f}, F1 {metrics['f1']:.3f}.")
+               f"accuracy {metrics['Accuracy']:.3f}, F1 {metrics['F1-score']:.3f}.")
     st.warning("Revenue, vote average, and ROI are post-release information. This model estimates engagement from movie data, not pre-release information.")
 
-    numeric = ["runtime", "budget", "revenue", "vote_average", "release_year", "release_month", "genre_count", "keyword_count", "roi", "movie_age"]
+    numeric = [
+        "runtime", "budget", "revenue", "vote_average", "release_year",
+        "release_month", "release_decade", "genre_count", "keyword_count",
+        "roi", "movie_age", "overview_length",
+    ]
     categorical = ["original_language", "status", "runtime_category"]
     numeric_defaults = {}
     for column in numeric:
@@ -152,10 +156,7 @@ def classification_page(movies):
         values["keywords"] = keywords
         row = pd.DataFrame([{feature: values[feature] for feature in model.feature_names_in_}])
         prediction = int(model.predict(row)[0])
-        st.subheader(f"{title}: {'High engagement' if prediction else 'Normal engagement'}")
-        if hasattr(model, "predict_proba"):
-            probability = float(model.predict_proba(row)[0, 1])
-            st.progress(probability, text=f"Estimated high-engagement probability: {probability:.1%}")
+        st.subheader("High engagement" if prediction else "Not high engagement")
 
 
 def clusters_page(movies):

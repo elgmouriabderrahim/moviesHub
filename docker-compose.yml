@@ -23,10 +23,11 @@ services:
       - mongodb
 
   streamlit:
+    image: streamlit-movieshub:1.0
     build:
       context: .
       dockerfile: Dockerfile.streamlit
-    container_name: movieshub-streamlit
+    container_name: streamlit-movieshub
     env_file:
       - .env
     environment:
@@ -44,10 +45,11 @@ services:
     restart: unless-stopped
 
   airflow:
+    image: airflow-movieshub:1.0
     build:
       context: .
       dockerfile: Dockerfile.airflow
-    container_name: movieshub-airflow
+    container_name: airflow-movieshub
     env_file:
       - .env
     environment:

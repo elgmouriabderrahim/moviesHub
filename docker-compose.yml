@@ -11,16 +11,68 @@ services:
       - mongodb_data:/data/db
 
   mongo-express:
-      image: mongo-express:latest
-      container_name: mongo_express
-      ports:
-        - "8081:8081"
-      environment:
-        ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_USERNAME}
-        ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD}
-        ME_CONFIG_MONGODB_URL: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017
-      depends_on: 
-        - mongodb
+    image: mongo-express:latest
+    container_name: mongo_express
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_USERNAME}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD}
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
+    depends_on:
+      - mongodb
+
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    container_name: movieshub-streamlit
+    env_file:
+      - .env
+    environment:
+      MONGO_HOST: mongodb
+      MONGO_PORT: 27017
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./models:/app/models
+      - ./data/features:/app/data/features:ro
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+
+  airflow:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    container_name: movieshub-airflow
+    env_file:
+      - .env
+    environment:
+      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/movieshub/dags
+      AIRFLOW_UID: ${AIRFLOW_UID:-50000}
+      MONGO_HOST: mongodb
+      MONGO_PORT: 27017
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    command: standalone
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./dags:/opt/movieshub/dags:ro
+      - ./src:/opt/movieshub/src:ro
+      - ./data:/opt/movieshub/data
+      - ./models:/opt/movieshub/models
+      - ./.env:/opt/movieshub/.env:ro
+      - airflow_data:/opt/airflow
+    depends_on:
+      - mongodb
+    restart: unless-stopped
 
 volumes:
   mongodb_data:
+  airflow_data:
